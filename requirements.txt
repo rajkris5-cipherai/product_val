@@ -7,3 +7,4 @@ redis==5.2.1
 beautifulsoup4==4.13.3
 gunicorn
 whitenoise
+dj-database-url
