@@ -18,7 +18,7 @@ class CheckURLAPI(APIView):
             return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            scraper = AmazonScraper(use_redis=True)
+            scraper = AmazonScraper(use_redis=False)
             result = scraper.fetch_product_data(url)
             score = result.get('authenticity_score', -1)
             result = json.dumps(result)
