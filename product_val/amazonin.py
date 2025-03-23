@@ -92,19 +92,21 @@ class AmazonScraper:
         try:
             response = session.get(url, headers=headers, timeout=10)
             print(f"status_code: {response.status_code}")
+            content = self.scrape_with_selenium(url)
 
-            if response.status_code == 404:
-                return {"error": "Invalid Amazon product URL"}
-            elif response.status_code == 503:
-                print("Blocked! Retrying with Selenium...")
-                content = self.scrape_with_selenium(url)
-            elif response.status_code == 500:
-                print("Blocked! Retrying with Selenium...")
-                content = self.scrape_with_selenium(url)
-            elif response.status_code != 200:
-                return {"error": f"Unexpected error: {response.status_code}"}
-            else:
-                content = response.content
+
+            # if response.status_code == 404:
+            #     return {"error": "Invalid Amazon product URL"}
+            # elif response.status_code == 503:
+            #     print("Blocked! Retrying with Selenium...")
+            #     content = self.scrape_with_selenium(url)
+            # elif response.status_code == 500:
+            #     print("Blocked! Retrying with Selenium...")
+            #     content = self.scrape_with_selenium(url)
+            # elif response.status_code != 200:
+            #     return {"error": f"Unexpected error: {response.status_code}"}
+            # else:
+            #     content = response.content
             
             print(content)
 
