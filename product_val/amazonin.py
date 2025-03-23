@@ -93,6 +93,9 @@ class AmazonScraper:
             elif response.status_code == 503:
                 print("Blocked! Retrying with Selenium...")
                 content = self.scrape_with_selenium(url)
+            elif response.status_code == 500:
+                print("Blocked! Retrying with Selenium...")
+                content = self.scrape_with_selenium(url)
             elif response.status_code != 200:
                 return {"error": f"Unexpected error: {response.status_code}"}
             else:
