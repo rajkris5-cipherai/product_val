@@ -86,6 +86,7 @@ class AmazonScraper:
 
         try:
             response = session.get(url, headers=headers, timeout=10)
+            print(f"status_code: {response.status_code}")
 
             if response.status_code == 404:
                 return {"error": "Invalid Amazon product URL"}
