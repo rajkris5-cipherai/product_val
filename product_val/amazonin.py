@@ -57,7 +57,12 @@ class AmazonScraper:
         options = Options()
         options.add_argument("--headless")  
         options.add_argument("--disable-blink-features=AutomationControlled")  
-        options.add_argument(f"user-agent={random.choice(self.user_agents)}")  
+        options.add_argument(f"user-agent={random.choice(self.user_agents)}")
+        options.add_argument("--no-sandbox")  # Required for Render
+        options.add_argument("--disable-dev-shm-usage")  # Prevent crashes
+        options.add_argument("--remote-debugging-port=9222")  # Avoid conflicts
+        options.add_argument("--user-data-dir=/tmp/chrome-user-data")  # Unique data dir
+
 
         driver = webdriver.Chrome(options=options)
         driver.get(url)
@@ -100,6 +105,8 @@ class AmazonScraper:
                 return {"error": f"Unexpected error: {response.status_code}"}
             else:
                 content = response.content
+            
+            print(content)
 
             soup = BeautifulSoup(content, "html.parser")
 
