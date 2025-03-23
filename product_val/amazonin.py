@@ -3,6 +3,10 @@ import requests
 import redis
 from bs4 import BeautifulSoup
 from textblob import TextBlob  # For sentiment analysis
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
+import random
 
 class AmazonScraper:
     def __init__(self, use_redis=True, redis_host='localhost', redis_port=6379, redis_db=0):
@@ -20,6 +24,12 @@ class AmazonScraper:
                 print("⚠️ Redis not available, proceeding without cache.")
         else:
             self.redis_available = False  # Redis is disabled
+        
+        self.user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"
+        ]
 
     def validate_url(self, url):
         """Validate Amazon India product URL and extract product ID."""
@@ -41,6 +51,23 @@ class AmazonScraper:
             return {"sentiment": "Negative", "score": polarity}
         else:
             return {"sentiment": "Neutral", "score": polarity}
+    
+    def scrape_with_selenium(self, url):
+        """Fallback method using Selenium if Amazon blocks requests"""
+        options = Options()
+        options.add_argument("--headless")  
+        options.add_argument("--disable-blink-features=AutomationControlled")  
+        options.add_argument(f"user-agent={random.choice(self.user_agents)}")  
+
+        driver = webdriver.Chrome(options=options)
+        driver.get(url)
+        time.sleep(5)  # Wait for JavaScript to load
+
+        page_source = driver.page_source
+
+        driver.quit()
+
+        return page_source
 
 
     def get_product_details(self, product_id):
@@ -63,12 +90,14 @@ class AmazonScraper:
             if response.status_code == 404:
                 return {"error": "Invalid Amazon product URL"}
             elif response.status_code == 503:
-                return {"error": "Amazon is blocking the request. Try later."}
+                print("Blocked! Retrying with Selenium...")
+                content = self.scrape_with_selenium(url)
             elif response.status_code != 200:
                 return {"error": f"Unexpected error: {response.status_code}"}
-            print(f"status: {response.status_code} response: {response.content}")
+            else:
+                content = response.content
 
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(content, "html.parser")
 
             title = soup.select_one("#productTitle")
             title = title.get_text(strip=True) if title else "N/A"
@@ -187,19 +216,26 @@ class AmazonScraper:
 
         try:
             response = requests.get(seller_url, headers=headers, timeout=10)
+            
+            if response.status_code == 404:
+                return {"error": "Invalid Amazon product URL"}
+            elif response.status_code == 503:
+                print("Blocked! Retrying with Selenium...")
+                content = self.scrape_with_selenium(seller_url)
+            elif response.status_code != 200:
+                return {"seller_rating": 0, "seller_review_count": 0}
+            else:
+                content = response.content
 
-            if response.status_code != 200:
-                return {"seller_rating": "N/A", "seller_review_count": "N/A"}
-
-            soup = BeautifulSoup(response.content, "html.parser")
+            soup = BeautifulSoup(content, "html.parser")
 
             # 🔥 Extract Seller Rating
             seller_rating = soup.select_one("span#effective-timeperiod-rating-lifetime-description")
-            seller_rating = seller_rating.get_text(strip=True).split()[0] if seller_rating else "N/A"
+            seller_rating = seller_rating.get_text(strip=True).split()[0] if seller_rating else 0
 
             # 🔥 Extract Seller Review Count
             seller_review_count = soup.select_one("div#rating-lifetime-num span.ratings-reviews-count")
-            seller_review_count = seller_review_count.get_text(strip=True).split()[0] if seller_review_count else "N/A"
+            seller_review_count = seller_review_count.get_text(strip=True).split()[0] if seller_review_count else 0
 
             return {
                 "seller_rating": seller_rating,

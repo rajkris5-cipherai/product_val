@@ -8,3 +8,4 @@ beautifulsoup4==4.13.3
 gunicorn
 whitenoise
 dj-database-url
+selenium==4.30.0
