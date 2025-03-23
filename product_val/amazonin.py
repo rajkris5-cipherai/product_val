@@ -66,6 +66,7 @@ class AmazonScraper:
                 return {"error": "Amazon is blocking the request. Try later."}
             elif response.status_code != 200:
                 return {"error": f"Unexpected error: {response.status_code}"}
+            print(f"status: {response.status_code} response: {response.content}")
 
             soup = BeautifulSoup(response.content, "html.parser")
 
