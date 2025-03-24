@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 import time
 import random
+import undetected_chromedriver as uc
 
 class AmazonScraper:
     def __init__(self, use_redis=True, redis_host='localhost', redis_port=6379, redis_db=0):
@@ -67,7 +68,7 @@ class AmazonScraper:
         options.binary_location = "/usr/bin/chromium-browser"
 
         service = Service("/usr/bin/chromedriver")
-        driver = webdriver.Chrome(service=service, options=options)
+        driver = uc.Chrome(service=service, options=options)
         driver.get(url)
         time.sleep(5)  # Wait for JavaScript to load
 
