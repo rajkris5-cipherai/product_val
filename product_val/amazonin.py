@@ -94,7 +94,7 @@ class AmazonScraper:
 
         try:
             response = session.get(url, headers=headers, timeout=10)
-            print(f"status_code: {response.status_code}")
+            print(f"status_code: {response.status_code}, {response.content}")
             content = self.scrape_with_selenium(url)
 
 
