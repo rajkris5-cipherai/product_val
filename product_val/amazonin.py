@@ -68,7 +68,7 @@ class AmazonScraper:
         options.binary_location = "/usr/bin/chromium-browser"
 
         service = Service("/usr/bin/chromedriver")
-        driver = uc.Chrome(service=service, options=options)
+        driver = uc.Chrome(service=service, driver_executable_path="/usr/bin/chromedriver", options=options)
         driver.get(url)
         time.sleep(5)  # Wait for JavaScript to load
 
