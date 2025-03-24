@@ -68,7 +68,7 @@ class AmazonScraper:
         options.binary_location = "/usr/bin/chromium-browser"
 
         service = Service("/usr/bin/chromedriver")
-        driver = uc.Chrome(service=service, driver_executable_path="/usr/bin/chromedriver", options=options)
+        driver = uc.Chrome(service=service, driver_executable_path="/home/ubuntu/.local/bin/chromedriver", options=options)
         driver.get(url)
         time.sleep(5)  # Wait for JavaScript to load
 
@@ -95,7 +95,7 @@ class AmazonScraper:
 
         try:
             response = session.get(url, headers=headers, timeout=10)
-            print(f"status_code: {response.status_code}, {response.content}")
+            # print(f"status_code: {response.status_code}, {response.content}")
             content = self.scrape_with_selenium(url)
 
 
@@ -134,7 +134,7 @@ class AmazonScraper:
 
             total_reviews = soup.select_one("#acrCustomerReviewText")
             try:
-                total_reviews = int(total_reviews.get_text(strip=True).split()[0].replace(",", "")) if total_reviews else "N/A"
+                total_reviews = int(total_reviews.get_text(strip=True).split()[0].replace(",", "")) if total_reviews else 0
             except Exception as e:
                 print(f'exception when converting total_reviews: {total_reviews}, e: {str(e)}')
                 total_reviews = 0
@@ -150,7 +150,7 @@ class AmazonScraper:
             seller_name = seller_name_tag.get_text(strip=True) if seller_name_tag else "N/A"
             seller_url = f"https://www.amazon.in{seller_name_tag['href']}" if seller_name_tag else None
 
-            seller_details = self.get_seller_details(seller_url) if seller_url else {"seller_rating": "N/A", "seller_review_count": "N/A"}
+            seller_details = self.get_seller_details(seller_url) if seller_url else {"seller_rating": 0, "seller_review_count": 0}
             print(rating, total_reviews, sentiment_data["score"], seller_details["seller_rating"], seller_details["seller_review_count"])
             try:
                 seller_rating = float(seller_details["seller_rating"]) if seller_details["seller_rating"] else 0.0
@@ -260,7 +260,7 @@ class AmazonScraper:
             }
 
         except requests.RequestException:
-            return {"seller_rating": "N/A", "seller_review_count": "N/A"}
+            return {"seller_rating": 0, "seller_review_count": 0}
         
     def fetch_product_data(self, url):
         """Main function to validate, check cache, scrape, and store data."""
