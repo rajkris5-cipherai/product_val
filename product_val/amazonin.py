@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from textblob import TextBlob  # For sentiment analysis
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 import time
 import random
 
@@ -63,8 +64,10 @@ class AmazonScraper:
         options.add_argument("--remote-debugging-port=9222")  # Avoid conflicts
         options.add_argument("--user-data-dir=/tmp/chrome-user-data")  # Unique data dir
 
+        options.binary_location = "/usr/bin/chromium-browser"
 
-        driver = webdriver.Chrome(options=options)
+        service = Service("/usr/bin/chromedriver")
+        driver = webdriver.Chrome(service=service, options=options)
         driver.get(url)
         time.sleep(5)  # Wait for JavaScript to load
 
