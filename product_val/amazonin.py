@@ -281,3 +281,13 @@ class AmazonScraper:
             self.redis_client.set(product_id, str(product_data), ex=86400)  # Cache for 24 hours
 
         return product_data
+
+
+# Example usage
+if __name__ == "__main__":
+    scraper = AmazonScraper(use_redis=False)
+    product_url = "https://www.amazon.in/dp/B0C5J4S6FP"
+    product_url = "https://www.amazon.in/iQOO-Storage-Snapdragon-Processor-Brightness/dp/B07WHR9ZJ9"
+    # product_url = "https://www.amazon.in/Amazon-Brand-12-inch-Roulette-Movement/dp/B076VF43GG"
+    result = scraper.fetch_product_data(product_url)
+    print(result)
